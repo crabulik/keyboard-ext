@@ -3,14 +3,39 @@
 #include <dt-bindings/zmk/bt.h>
 
 / {
+    combos {
+        compatible = "zmk,combos";
+
+        /* All three buttons together = clear the current Bluetooth bond.
+         * A 3-key combo is deliberate enough that normal layout switching
+         * (one button at a time) can't trigger it by accident. */
+        combo_bt_clr {
+            timeout-ms = <50>;
+            key-positions = <0 1 2>;
+            bindings = <&bt BT_CLR>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
         default_layer {
             bindings = <
-                &kp LC(LS(N1))  /* Button 1: Send Ctrl + Shift + 1 (US) */
-                &kp LC(LS(N2))  /* Button 2: Send Ctrl + Shift + 2 (UA) */
-                &bt BT_CLR      /* Button 3: Clear the current Bluetooth bond, then re-pair */
+                &kp LC(LS(N1))  /* Button 1: Ctrl+Shift+1 (US layout)            */
+                &kp LC(LS(N2))  /* Button 2: Ctrl+Shift+2 (UA layout)            */
+                &mo 1           /* Button 3: hold for the host-switch layer       */
+            >;
+        };
+
+        /* Held while Button 3 is down. Lets the two layout buttons pick which
+         * paired host (BLE profile) the keyboard is connected to — like a
+         * Logitech Easy-Switch button. Pair each host on its own profile first
+         * (hold Btn3 + tap the button for an empty profile, then pair). */
+        host_switch_layer {
+            bindings = <
+                &bt BT_SEL 0    /* Hold Btn3 + Btn1: connect to host/profile 0   */
+                &bt BT_SEL 1    /* Hold Btn3 + Btn2: connect to host/profile 1   */
+                &trans          /* Button 3 itself (held to reach this layer)     */
             >;
         };
     };

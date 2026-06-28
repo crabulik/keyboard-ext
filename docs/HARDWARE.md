@@ -26,13 +26,18 @@ The Supermini uses its internal pull-up resistors for the switches. All componen
 | **LED 1 (US Indicator)** | **Pin 4 (022)** | Pin 4 -> 220Ω Resistor -> LED Positive (+) <br> LED Negative (-) -> GND |
 | **LED 2 (UA Indicator)** | **Pin 5 (024)** | Pin 5 -> 220Ω Resistor -> LED Positive (+) <br> LED Negative (-) -> GND |
 
-> **Button 3 — "Clear Bluetooth"** is wired exactly like the layout buttons
+> **Button 3 — host switch (hold)** is wired exactly like the layout buttons
 > (switch between **Pin 6** and **GND**, using the MCU's internal pull-up). In
-> firmware it is bound to ZMK's `&bt BT_CLR`: a single press **forgets the current
-> Bluetooth bond** and re-advertises as "CrabulikConsole" so you can pair to a new
-> or different host. It is a low-use utility button — a plain momentary tact
-> switch is fine and a keycap is optional (hence "+1 optional" in the BOM). Pin 6
-> is silkscreened **`D6`/`A7`** on the Supermini and maps to nRF GPIO **P1.00**.
+> firmware it's a **hold layer for Bluetooth host switching** (Logitech
+> Easy-Switch style):
+> - **Hold Button 3 + tap Button 1/2** → connect to host (BLE profile) 0 / 1.
+> - **Press all three buttons together** → clear the current Bluetooth bond
+>   (`&bt BT_CLR`), to re-pair a host.
+>
+> Pair each host on its own profile first (hold Btn3 + tap the button for an empty
+> profile, then pair from that computer). A plain momentary tact switch is fine and
+> a keycap is optional (hence "+1 optional" in the BOM). Pin 6 is silkscreened
+> **`D6`/`A7`** on the Supermini and maps to nRF GPIO **P1.00**.
 
 ### Battery Connection
 1. Solder the red wire of the 3.7V Li-Po battery to the **B+** pad on the back of the Supermini.
