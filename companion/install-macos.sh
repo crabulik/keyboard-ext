@@ -34,7 +34,9 @@ PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 LOG="$HOME/Library/Logs/crabulik-indicator.log"
 APP_SUPPORT="$HOME/Library/Application Support/CrabulikConsole"
 APP="$APP_SUPPORT/CrabulikIndicator.app"
-RUNNER="$APP/Contents/MacOS/runner"
+# The executable's basename is what macOS shows in System Settings > Privacy &
+# Security > Bluetooth, so give it a recognizable name (not "runner").
+RUNNER="$APP/Contents/MacOS/CrabulikIndicator"
 DOMAIN="gui/$(id -u)"
 BT_USAGE="CrabulikConsole shows your active keyboard layout on the device's LEDs over Bluetooth."
 
@@ -106,7 +108,7 @@ build_app() {
   <key>CFBundleIdentifier</key>          <string>$LABEL</string>
   <key>CFBundleName</key>                <string>CrabulikIndicator</string>
   <key>CFBundleDisplayName</key>         <string>CrabulikConsole Layout Indicator</string>
-  <key>CFBundleExecutable</key>          <string>runner</string>
+  <key>CFBundleExecutable</key>          <string>CrabulikIndicator</string>
   <key>CFBundlePackageType</key>         <string>APPL</string>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
   <key>CFBundleShortVersionString</key>  <string>1.0</string>
