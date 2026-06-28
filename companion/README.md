@@ -177,47 +177,36 @@ prompt to allow Bluetooth for that app (e.g. **Terminal** or **iTerm**) — clic
 > Use **Terminal.app** or **iTerm** instead. The daemon prints a hint after ~5s
 > if Bluetooth never powers on.
 
-## Run automatically at login
+## Install as a login service (recommended)
 
-Use a **LaunchAgent**. Create
-`~/Library/LaunchAgents/com.crabulik.indicator.plist` (edit the two paths to your
-venv's `python3` and this script):
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>            <string>com.crabulik.indicator</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>/Users/you/keyboard-ext/companion/.venv/bin/python3</string>
-    <string>/Users/you/keyboard-ext/companion/crabulik_indicator.py</string>
-  </array>
-  <key>RunAtLoad</key>        <true/>
-  <key>KeepAlive</key>        <true/>
-  <key>StandardOutPath</key>  <string>/tmp/crabulik-indicator.log</string>
-  <key>StandardErrorPath</key><string>/tmp/crabulik-indicator.log</string>
-</dict>
-</plist>
-```
-
-Check `/tmp/crabulik-indicator.log` if it isn't working (the daemon line-buffers
-its output, so progress shows up there promptly).
-
-Load it:
+[`install-macos.sh`](install-macos.sh) does the whole setup in one step — creates
+the venv, installs the dependencies, registers a **LaunchAgent**, and starts the
+daemon. After this you can skip the manual *Setup* and *Run* above.
 
 ```bash
-launchctl load ~/Library/LaunchAgents/com.crabulik.indicator.plist
+cd companion
+./install-macos.sh
 ```
 
-> A LaunchAgent runs the Python binary directly, so the **Bluetooth permission**
-> is attached to that binary (not Terminal). If the LEDs don't update under
-> launchd, run it once from the terminal first to trigger/grant the prompt, or
-> add the venv's `python3` under System Settings → Privacy & Security →
-> Bluetooth. Unload with
-> `launchctl unload ~/Library/LaunchAgents/com.crabulik.indicator.plist`.
+It then runs continuously and **starts automatically at login**. Useful follow-ups:
+
+```bash
+./install-macos.sh --uninstall                 # stop and remove the service
+tail -f ~/Library/Logs/crabulik-indicator.log  # watch its output
+launchctl print gui/$(id -u)/com.crabulik.indicator | grep -E 'state|pid'
+```
+
+> A LaunchAgent runs the venv's `python3` binary directly, so the **Bluetooth
+> permission** is attached to *that binary* (not Terminal). If the LEDs don't
+> update under launchd, grant Bluetooth to the venv's `python3` under System
+> Settings → Privacy & Security → Bluetooth, then re-run the script. Running
+> `python3 crabulik_indicator.py` once in a standalone Terminal first is the
+> easiest way to confirm the link and settle the permission.
+
+The script writes `~/Library/LaunchAgents/com.crabulik.indicator.plist`. To do it
+by hand instead, create that file (with absolute paths to your venv `python3` and
+`crabulik_indicator.py`, `RunAtLoad`/`KeepAlive` true) and load it with
+`launchctl bootstrap gui/$(id -u) <plist>`.
 
 ## One-shot test / debug
 
