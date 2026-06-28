@@ -98,15 +98,41 @@ follow. Options:
 python crabulik_indicator.py --address <addr> --interval 0.5   # poll every 0.5s
 ```
 
-## Run automatically at login
+## Install as a background service (recommended)
 
-Register a Scheduled Task ("At log on") that runs:
+[`install-windows.ps1`](install-windows.ps1) does the whole setup in one step —
+creates the venv, installs the dependencies, **auto-detects the keyboard's BLE
+address**, and registers a **Scheduled Task** ("At log on") that runs the daemon
+with `pythonw.exe` (no console window), restarts it if it dies, and logs to
+`%LOCALAPPDATA%\CrabulikConsole\crabulik-indicator.log`. No admin rights needed.
+After this you can skip the manual *Setup* / *Find the address* / *Run* above.
+
+```powershell
+cd companion
+.\install-windows.ps1
+```
+
+It then runs continuously and **starts automatically at login**. Useful
+follow-ups:
+
+```powershell
+.\install-windows.ps1 -Uninstall                  # stop and remove the task
+.\install-windows.ps1 -Address F8:6B:7D:5C:15:A4  # if auto-detect can't find it
+Get-Content -Wait "$env:LOCALAPPDATA\CrabulikConsole\crabulik-indicator.log"
+Get-ScheduledTask -TaskName CrabulikConsoleIndicator | Get-ScheduledTaskInfo
+```
+
+> If PowerShell blocks the script (`running scripts is disabled`), allow it for
+> this one process: `powershell -ExecutionPolicy Bypass -File .\install-windows.ps1`.
+
+### Manual alternative
+
+If you'd rather not use the installer, register a Scheduled Task ("At log on")
+that runs `pythonw.exe` (no console window) yourself:
 
 ```
-<path-to-venv>\Scripts\pythonw.exe  <repo>\companion\crabulik_indicator.py --address <addr>
+<path-to-venv>\Scripts\pythonw.exe  <repo>\companion\crabulik_indicator.py --address <addr> --log <logfile>
 ```
-
-`pythonw.exe` runs it without a console window.
 
 ## One-shot test / debug
 

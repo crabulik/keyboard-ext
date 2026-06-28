@@ -35,6 +35,10 @@ Usage:
     Windows:  python  crabulik_indicator.py --address F8:6B:7D:5C:15:A4
     macOS:    python3 crabulik_indicator.py
     (both):   ... --interval 0.5     # layout poll interval, seconds
+    (both):   ... --log <path>       # append output to a file (for background runs)
+
+To run it continuously in the background and start it at login, use the
+installers: install-windows.ps1 (Windows) or install-macos.sh (macOS).
 """
 
 import argparse
@@ -476,7 +480,24 @@ def main() -> None:
     parser.add_argument(
         "--interval", type=float, default=0.4, help="layout poll interval (seconds)"
     )
+    parser.add_argument(
+        "--log",
+        default=None,
+        help="append stdout/stderr to this file. Used when run in the background "
+        "(e.g. via install-windows.ps1 / pythonw), where there is no console to "
+        "print to.",
+    )
     args = parser.parse_args()
+
+    # Background runners (pythonw.exe on Windows) have no console: sys.stdout is
+    # None and prints would fail. Redirect to a log file so output is preserved.
+    if args.log:
+        try:
+            logfile = open(args.log, "a", buffering=1, encoding="utf-8")
+            sys.stdout = logfile
+            sys.stderr = logfile
+        except Exception:  # noqa: BLE001 - logging is best-effort
+            pass
 
     if sys.platform == "win32":
         if not args.address:
