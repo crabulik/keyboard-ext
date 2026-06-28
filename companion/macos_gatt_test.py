@@ -157,14 +157,27 @@ class Tester(NSObject):
         self.done = True
 
 
+CB_AUTH_NAMES = {0: "notDetermined", 1: "restricted", 2: "denied", 3: "allowedAlways"}
+
+
 def main():
     code = int(sys.argv[1]) if len(sys.argv) > 1 else None
     print(f"current layout id: {current_input_source_id()}  -> code {get_layout_code()}")
     if code is None:
         print("(no code arg; pass 0/1/2 to also write)")
+    try:
+        auth = int(CBCentralManager.authorization())
+        print(f"Bluetooth permission: {CB_AUTH_NAMES.get(auth, auth)}")
+    except Exception:  # noqa: BLE001 - older macOS without the class method
+        pass
 
     tester = Tester.alloc().initWithCode_(code)
-    CBCentralManager.alloc().initWithDelegate_queue_(tester, None)
+    # Keep a reference: CBCentralManager only holds a *weak* ref to its delegate,
+    # and nothing else retains the manager, so if we discard it pyobjc may
+    # garbage-collect it before the state callback fires — the manager goes dead
+    # and we hang until the 20s timeout. Holding it here keeps it alive.
+    central = CBCentralManager.alloc().initWithDelegate_queue_(tester, None)
+    assert central is not None
 
     rl = NSRunLoop.currentRunLoop()
     deadline = NSDate.dateWithTimeIntervalSinceNow_(20.0)
@@ -172,6 +185,13 @@ def main():
         rl.runMode_beforeDate_("NSDefaultRunLoopMode", NSDate.dateWithTimeIntervalSinceNow_(0.1))
     if not tester.done:
         print("timed out (no Bluetooth callback within 20s).")
+        print("The Bluetooth state callback never fired — almost always a permission /")
+        print("responsible-app issue: macOS attributes Bluetooth access to the app that")
+        print("launched Python. From an IDE's integrated terminal (VS Code/Electron) it")
+        print("often can't resolve, so no prompt appears and the state stays 'unknown'.")
+        print("Fix: run from the standalone Terminal.app or iTerm and allow Bluetooth when")
+        print("prompted, or enable it under System Settings > Privacy & Security > Bluetooth")
+        print("(then fully quit and reopen the terminal).")
 
 
 if __name__ == "__main__":

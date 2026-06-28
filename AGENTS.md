@@ -31,7 +31,7 @@ See [docs/README.md](docs/README.md), [docs/HARDWARE.md](docs/HARDWARE.md), and
 | [config/crabulik_console.conf](config/crabulik_console.conf) | User Kconfig overrides (auto-merged by shield name); currently no overrides | yes |
 | [config/boards/shields/crabulik_console/](config/boards/shields/crabulik_console/) | The ZMK shield definition | yes |
 | [modules/zmk-layout-indicators/](modules/zmk-layout-indicators/) | Custom ZMK module: BLE GATT service driving the layout LEDs (Option A) | yes |
-| [companion/](companion/) | Host-side daemon (Python + bleak) that pushes the active OS layout to the keyboard | yes |
+| [companion/](companion/) | Host-side daemon (Python; Windows via WinRT/bleak, macOS via CoreBluetooth/pyobjc) that pushes the active OS layout to the keyboard | yes |
 | [scripts/](scripts/) | PowerShell build / flash / clean scripts | yes |
 | [docs/](docs/) | BOM, wiring, build guide, overview | yes |
 | `.zmk-workspace/` | Cloned ZMK + Zephyr (west workspace) | no (gitignored) |

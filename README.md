@@ -138,9 +138,9 @@ layout by itself, a tiny companion app pushes it over Bluetooth:
 - Firmware: the [`zmk-layout-indicators`](modules/zmk-layout-indicators) module
   exposes a custom BLE characteristic that drives `led_us` / `led_ua` (built in by
   default).
-- Host: a small user-space daemon ([`companion/`](companion/), Python + `bleak`)
-  watches the active layout and writes it to that characteristic — **no drivers,
-  nothing system-level**.
+- Host: a small user-space daemon ([`companion/`](companion/), Python; **Windows
+  and macOS**) watches the active layout and writes it to that characteristic —
+  **no drivers, nothing system-level**.
 
 See [companion/README.md](companion/README.md) to set it up.
 
@@ -156,7 +156,7 @@ See [companion/README.md](companion/README.md) to set it up.
 * `/config` — ZMK shield definition, devicetree overlay (`.overlay`), keymap
   (`.keymap`), and Kconfig (`.conf`).
 * `/modules` — custom ZMK module(s), incl. the BLE layout-indicator service.
-* `/companion` — host-side layout-indicator daemon (Python + bleak).
+* `/companion` — host-side layout-indicator daemon (Python; Windows + macOS).
 * `/scripts` — PowerShell scripts to build, flash, and clean firmware locally.
 * `/docs` — hardware BOM, wiring, build guide, and project overview.
 
