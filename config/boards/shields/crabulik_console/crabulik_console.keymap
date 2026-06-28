@@ -24,7 +24,15 @@
                 &kp LC(LS(N1))  /* Button 1: Ctrl+Shift+1 (US layout)            */
                 &kp LC(LS(N2))  /* Button 2: Ctrl+Shift+2 (UA layout)            */
                 &mo 1           /* Button 3: hold for the host-switch layer       */
+                &kp C_MUTE      /* Button 4: EC11 push-click = mute               */
+                &kp C_PREV      /* Button 5: previous track                       */
+                &kp C_NEXT      /* Button 6: next track                           */
             >;
+
+            /* 1st binding -> ec11_knob (volume), 2nd -> mouse wheel (switch tabs:
+             * CW = Ctrl+Tab / next, CCW = Ctrl+Shift+Tab / prev). Order matches
+             * the `sensors` node in the overlay. */
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>, <&inc_dec_kp LC(TAB) LC(LS(TAB))>;
         };
 
         /* Held while Button 3 is down. Lets the two layout buttons pick which
@@ -36,7 +44,12 @@
                 &bt BT_SEL 0    /* Hold Btn3 + Btn1: connect to host/profile 0   */
                 &bt BT_SEL 1    /* Hold Btn3 + Btn2: connect to host/profile 1   */
                 &trans          /* Button 3 itself (held to reach this layer)     */
+                &trans          /* Button 4: EC11 push-click (unused on layer)    */
+                &trans          /* Button 5: prev track (unused on layer)         */
+                &trans          /* Button 6: next track (unused on layer)         */
             >;
+
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>, <&inc_dec_kp LC(TAB) LC(LS(TAB))>;
         };
     };
 };

@@ -7,9 +7,13 @@
     Produces firmware\crabulik_console-nice_nano-diag.uf2 using a throwaway keymap
     (config\boards\shields\crabulik_console\diag\crabulik_console-diag.keymap) instead of the production keymap:
 
-        Pin 2 (017)   -> A     (US button)
-        Pin 3 (020)   -> B     (UA button)
-        Pin 6 (P1.00) -> C     (Clear-Bluetooth button)
+        Pin 2  (017)   -> A    (US button)
+        Pin 3  (020)   -> B    (UA button)
+        Pin 6  (P1.00) -> C    (Clear-Bluetooth button)
+        Pin 9  (1.06)  -> D    (EC11 push-click / Button 4)
+        Pin 18 (1.15)  -> I    (Button 5 / Prev track)
+        Pin 19 (0.02)  -> J    (Button 6 / Next track)
+        EC11 rotation  -> E / F     Mouse wheel -> G / H
 
     Your real keymap is NOT touched — ZMK's -DKEYMAP_FILE override is used, and the
     build goes to its own directory / output name. Flash this image, press each
@@ -59,7 +63,13 @@ if (-not (Test-Path (Join-Path $Root 'config/boards/shields/crabulik_console/dia
 $board    = 'nice_nano//zmk'
 $shield   = 'crabulik_console'
 $name     = 'crabulik_console-nice_nano-diag'
-$buildDir = "/work/.build/$name"
+# Build inside the container's OWN filesystem (/tmp), NOT the /work bind mount.
+# On Docker Desktop for Windows a freshly created build dir on the bind mount
+# intermittently breaks the CMake configure, because files are not yet readable/
+# writable right after they're created (e.g. ".config cannot be read", or
+# "zephyr.dts.new: No such file or directory"). /tmp is a local overlay FS with
+# no such lag. Only the finished .uf2 is copied back to /work at the very end.
+$buildDir = "/tmp/$name"
 $keymap   = '/work/config/boards/shields/crabulik_console/diag/crabulik_console-diag.keymap'
 
 # --- Generate the in-container build script (LF line endings) ---------------
@@ -69,9 +79,8 @@ $lines = @(
     'cd "$WS/zmk"'
     'mkdir -p /work/firmware'
     "echo '==> Building DIAGNOSTIC $name'"
-    # Remove any prior build dir for a guaranteed-clean fresh configure. (Using
-    # `west --pristine=always` on a not-yet-existing dir can leave a stale
-    # 'Unix Makefiles' cache that then clashes with west's -GNinja.)
+    # Fresh local build dir each run (full rebuild — this image is built only
+    # occasionally, and /tmp is ephemeral inside the --rm container anyway).
     "rm -rf $buildDir"
     "west build -s app -b $board -d $buildDir -- -DZMK_CONFIG=/work/config -DSHIELD=$shield -DKEYMAP_FILE=$keymap"
     "cp $buildDir/zephyr/zmk.uf2 /work/firmware/$name.uf2"
@@ -95,10 +104,15 @@ if ($exit -eq 0) {
     Write-Host "`nDiagnostic firmware built:" -ForegroundColor Green
     Write-Host "  firmware\crabulik_console-nice_nano-diag.uf2"
     Write-Host "`nFlash it, then in a key tester press each button:" -ForegroundColor Cyan
-    Write-Host "  Pin 2 (US)        -> types A"
-    Write-Host "  Pin 3 (UA)        -> types B"
-    Write-Host "  Pin 6 (Clear-BT)  -> types C"
-    Write-Host "  (a dead/unwired button types nothing)"
+    Write-Host "  Pin 2  (US)           -> types A"
+    Write-Host "  Pin 3  (UA)           -> types B"
+    Write-Host "  Pin 6  (Clear-BT)     -> types C"
+    Write-Host "  Pin 9  (EC11 click)   -> types D"
+    Write-Host "  Pin 18 (Button 5)     -> types I"
+    Write-Host "  Pin 19 (Button 6)     -> types J"
+    Write-Host "  EC11 rotation         -> types E / F"
+    Write-Host "  Mouse wheel rotation  -> types G / H"
+    Write-Host "  (a dead/unwired input types nothing)"
     Write-Host "`nFlash with: .\scripts\flash.ps1 -Firmware crabulik_console-nice_nano-diag.uf2" -ForegroundColor Cyan
     Write-Host "When done, reflash normal firmware: .\scripts\build.ps1 ; .\scripts\flash.ps1" -ForegroundColor Cyan
 } else {

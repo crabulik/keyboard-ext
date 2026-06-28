@@ -1,15 +1,24 @@
 /*
  * DIAGNOSTIC keymap (not the production one).
  *
- * Maps each physical button to a plain letter so you can verify in a key tester
- * which switches actually register. Used only by scripts\build-diag.ps1 via ZMK's
- * -DKEYMAP_FILE override; the real keymap (crabulik_console.keymap) is untouched.
+ * Maps each physical input to a plain letter so you can verify in a key tester
+ * which switches/encoders actually register. Used only by scripts\build-diag.ps1
+ * via ZMK's -DKEYMAP_FILE override; the real keymap (crabulik_console.keymap) is
+ * untouched. The shield overlay + .conf ARE shared, so this build includes the
+ * encoder and Button 4 hardware definitions — only the bindings differ.
  *
- *   Pin 2 (017)   -> A   (US button)
- *   Pin 3 (020)   -> B   (UA button)
- *   Pin 6 (P1.00) -> C   (Clear-Bluetooth button)
+ *   Pin 2  (017)   -> A      (US button)
+ *   Pin 3  (020)   -> B      (UA button)
+ *   Pin 6  (P1.00) -> C      (Clear-Bluetooth button)
+ *   Pin 9  (1.06)  -> D      (EC11 push-click / Button 4)
+ *   Pin 18 (1.15)  -> I      (Button 5 / Prev track)
+ *   Pin 19 (0.02)  -> J      (Button 6 / Next track)
+ *   EC11 rotation  -> E (CW) / F (CCW)
+ *   Mouse wheel    -> G (CW) / H (CCW)
  *
- * A working button types its letter; a dead/unwired button types nothing.
+ * A working input types its letter(s); a dead/unwired one types nothing. The
+ * encoders emit plain keypresses here (not scroll/volume) so they show up in a
+ * key tester too.
  */
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
@@ -20,10 +29,17 @@
 
         default_layer {
             bindings = <
-                &kp A   /* Pin 2 (017)   - US button   */
-                &kp B   /* Pin 3 (020)   - UA button   */
-                &kp C   /* Pin 6 (P1.00) - Clear-BT    */
+                &kp A   /* Pin 2  (017)   - US button       */
+                &kp B   /* Pin 3  (020)   - UA button       */
+                &kp C   /* Pin 6  (P1.00) - Clear-BT        */
+                &kp D   /* Pin 9  (1.06)  - EC11 push-click */
+                &kp I   /* Pin 18 (1.15)  - Button 5        */
+                &kp J   /* Pin 19 (0.02)  - Button 6        */
             >;
+
+            /* 1st -> EC11 rotation, 2nd -> mouse wheel. Order matches the
+             * `sensors` node in the shield overlay. */
+            sensor-bindings = <&inc_dec_kp E F>, <&inc_dec_kp G H>;
         };
     };
 };
