@@ -180,8 +180,9 @@ prompt to allow Bluetooth for that app (e.g. **Terminal** or **iTerm**) — clic
 ## Install as a login service (recommended)
 
 [`install-macos.sh`](install-macos.sh) does the whole setup in one step — creates
-the venv, installs the dependencies, registers a **LaunchAgent**, and starts the
-daemon. After this you can skip the manual *Setup* and *Run* above.
+the venv, installs the dependencies, builds a small **app wrapper**, registers a
+**LaunchAgent**, and starts the daemon. After this you can skip the manual
+*Setup* and *Run* above.
 
 ```bash
 cd companion
@@ -191,22 +192,25 @@ cd companion
 It then runs continuously and **starts automatically at login**. Useful follow-ups:
 
 ```bash
-./install-macos.sh --uninstall                 # stop and remove the service
+./install-macos.sh --uninstall                 # stop and remove the service + app
 tail -f ~/Library/Logs/crabulik-indicator.log  # watch its output
 launchctl print gui/$(id -u)/com.crabulik.indicator | grep -E 'state|pid'
 ```
 
-> A LaunchAgent runs the venv's `python3` binary directly, so the **Bluetooth
-> permission** is attached to *that binary* (not Terminal). If the LEDs don't
-> update under launchd, grant Bluetooth to the venv's `python3` under System
-> Settings → Privacy & Security → Bluetooth, then re-run the script. Running
-> `python3 crabulik_indicator.py` once in a standalone Terminal first is the
-> easiest way to confirm the link and settle the permission.
+**On first start, macOS prompts to allow Bluetooth for "CrabulikIndicator" —
+click Allow.** If you see no prompt and the LEDs don't update, enable
+**CrabulikIndicator** under **System Settings → Privacy & Security → Bluetooth**,
+then `launchctl kickstart -k gui/$(id -u)/com.crabulik.indicator`.
 
-The script writes `~/Library/LaunchAgents/com.crabulik.indicator.plist`. To do it
-by hand instead, create that file (with absolute paths to your venv `python3` and
-`crabulik_indicator.py`, `RunAtLoad`/`KeepAlive` true) and load it with
-`launchctl bootstrap gui/$(id -u) <plist>`.
+> **Why an app wrapper, not just a plist?** macOS attributes Bluetooth permission
+> to the *running executable's app bundle*. A bare framework `python3` has no
+> `NSBluetoothAlwaysUsageDescription` in its Info.plist, so under launchd the OS
+> **hard-crashes** the process (TCC) the moment it touches CoreBluetooth — it
+> only "works" from Terminal because it borrows Terminal's permission. So the
+> installer builds `~/Library/Application Support/CrabulikConsole/CrabulikIndicator.app`
+> (a copy of the framework python stub + an Info.plist that declares the Bluetooth
+> usage, ad-hoc signed) and points the LaunchAgent at it. The plist passes
+> `PYTHONHOME`/`PYTHONPATH` so that interpreter still uses this venv.
 
 ## One-shot test / debug
 
