@@ -1,0 +1,4 @@
+# macOS companion dependencies.
+# pyobjc-framework-CoreBluetooth pulls in pyobjc-core and the Cocoa/Foundation
+# bindings. The Carbon TIS layout API is reached via ctypes (no extra package).
+pyobjc-framework-CoreBluetooth>=10

@@ -1,0 +1,29 @@
+/*
+ * DIAGNOSTIC keymap (not the production one).
+ *
+ * Maps each physical button to a plain letter so you can verify in a key tester
+ * which switches actually register. Used only by scripts\build-diag.ps1 via ZMK's
+ * -DKEYMAP_FILE override; the real keymap (crabulik_console.keymap) is untouched.
+ *
+ *   Pin 2 (017)   -> A   (US button)
+ *   Pin 3 (020)   -> B   (UA button)
+ *   Pin 6 (P1.00) -> C   (Clear-Bluetooth button)
+ *
+ * A working button types its letter; a dead/unwired button types nothing.
+ */
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+
+/ {
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            bindings = <
+                &kp A   /* Pin 2 (017)   - US button   */
+                &kp B   /* Pin 3 (020)   - UA button   */
+                &kp C   /* Pin 6 (P1.00) - Clear-BT    */
+            >;
+        };
+    };
+};

@@ -1,0 +1,4 @@
+name: zmk-layout-indicators
+build:
+  cmake: .
+  kconfig: Kconfig

@@ -1,0 +1,17 @@
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+
+/ {
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            bindings = <
+                &kp LC(LS(N1))  /* Button 1: Send Ctrl + Shift + 1 (US) */
+                &kp LC(LS(N2))  /* Button 2: Send Ctrl + Shift + 2 (UA) */
+                &bt BT_CLR      /* Button 3: Clear the current Bluetooth bond, then re-pair */
+            >;
+        };
+    };
+};

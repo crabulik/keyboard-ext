@@ -1,0 +1,15 @@
+config ZMK_LAYOUT_INDICATORS
+    bool "Layout indicator LEDs controlled by a paired host over BLE"
+    depends on ZMK_BLE
+    default y
+    help
+      Registers a custom BLE GATT service with one writable, encryption-required
+      characteristic. A paired host (the companion app) writes a single byte to
+      select which keyboard-layout indicator LED is lit:
+
+          0 = US  (led_us on,  led_ua off)
+          1 = UA  (led_ua on,  led_us off)
+          2 = off / unknown (both off)
+
+      Requires the board to define `led_us` and `led_ua` GPIO nodelabels (see the
+      crabulik_console shield overlay).

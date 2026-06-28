@@ -1,0 +1,13 @@
+# ZMK local build artifacts
+/.zmk-workspace/
+/.build/
+/firmware/
+
+# Python (companion app)
+.venv/
+__pycache__/
+*.pyc
+
+# Editor / OS
+.DS_Store
+Thumbs.db

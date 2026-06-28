@@ -1,0 +1,6 @@
+if SHIELD_CRABULIK_CONSOLE
+
+config ZMK_KEYBOARD_NAME
+    default "CrabulikConsole"
+
+endif

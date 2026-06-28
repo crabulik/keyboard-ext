@@ -1,0 +1,12 @@
+---
+include:
+  # ZMK's Zephyr 4.1 update (hardware model v2) requires building the board's
+  # `zmk` *variant*, not the bare base board. The identifier is:
+  #     nice_nano//zmk   =  board "nice_nano" / (soc omitted) / variant "zmk"
+  # The soc (nrf52840) is omittable since nice_nano has only one. The base
+  # `nice_nano` builds WITHOUT ZMK_BLE/ZMK_USB (no Bluetooth, no USB HID) — the
+  # `//zmk` variant is what enables them (see core-coverage.yml in the ZMK tree).
+  # Revision defaults to 2.0.0 (the Supermini / nice!nano v2). For v1 hardware
+  # use `nice_nano@1.0.0//zmk`.
+  - board: nice_nano//zmk
+    shield: crabulik_console

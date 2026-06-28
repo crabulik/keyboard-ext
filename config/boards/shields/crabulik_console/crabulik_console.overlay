@@ -1,0 +1,30 @@
+#include <dt-bindings/zmk/matrix_transform.h>
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+    };
+
+    /* Define the three physical switches wired to Ground */
+    kscan0: kscan {
+        compatible = "zmk,kscan-gpio-direct";
+        label = "KSCAN";
+        input-gpios
+            = <&pro_micro 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)> /* Button 1: US Layout */
+            , <&pro_micro 3 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)> /* Button 2: UA Layout */
+            , <&pro_micro 6 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; /* Button 3: Clear Bluetooth bond */
+    };
+
+    /* Expose the LEDs to the OS for custom state mapping */
+    leds {
+        compatible = "gpio-leds";
+        led_us: led_us {
+            gpios = <&pro_micro 4 GPIO_ACTIVE_HIGH>;
+            label = "US Indicator LED";
+        };
+        led_ua: led_ua {
+            gpios = <&pro_micro 5 GPIO_ACTIVE_HIGH>;
+            label = "UA Indicator LED";
+        };
+    };
+};
