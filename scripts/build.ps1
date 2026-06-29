@@ -152,7 +152,8 @@ foreach ($t in $targets) {
     $buildDir = "/work/.build/$artifact"
     $shieldArg = if ($t.shield) { " -DSHIELD=$($t.shield)" } else { '' }
     $lines += "echo '==> Building $artifact'"
-    $lines += "west build --pristine=$pristineMode$snippetArg -s app -b $($t.board) -d $buildDir -- -DZMK_CONFIG=/work/config -DZMK_EXTRA_MODULES=/work/modules/zmk-layout-indicators$shieldArg"
+    # ZMK_EXTRA_MODULES is a CMake list: quote it so the ';' isn't read by bash.
+    $lines += "west build --pristine=$pristineMode$snippetArg -s app -b $($t.board) -d $buildDir -- -DZMK_CONFIG=/work/config -DZMK_EXTRA_MODULES=`"/work/modules/zmk-layout-indicators;/work/modules/zmk-adc-dpad`"$shieldArg"
     $lines += "cp $buildDir/zephyr/zmk.uf2 /work/firmware/$artifact.uf2"
     $lines += "echo '==> Wrote firmware/$artifact.uf2'"
 }

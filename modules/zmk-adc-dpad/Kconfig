@@ -1,0 +1,22 @@
+config CRABULIK_ADC_DPAD
+    bool "Resistor-ladder 5-way d-pad read on one ADC channel"
+    default n
+    select ADC
+    help
+      Reads a passive resistor-ladder 5-way control (e.g. a CaddxFPV OSD menu
+      board) on a single ADC channel and sends a keycode per direction. Each
+      direction pulls the analog line to a distinct voltage band; the driver
+      thresholds the reading and emits the mapped key.
+
+      Requires an ADC channel node labelled `dpad_chan` in the shield overlay and
+      an external pull-up resistor from the signal wire to 3.3V. See
+      modules/zmk-adc-dpad/README.md for wiring, the overlay snippet, and the
+      calibration procedure.
+
+config CRABULIK_ADC_DPAD_LOG_MV
+    bool "Log measured d-pad millivolts (calibration aid)"
+    depends on CRABULIK_ADC_DPAD
+    default n
+    help
+      Logs the measured voltage and selected band on every poll. Build a logging
+      firmware, press each direction, and read the values to set the thresholds.

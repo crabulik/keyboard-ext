@@ -1,0 +1,4 @@
+name: zmk-adc-dpad
+build:
+  cmake: .
+  kconfig: Kconfig
