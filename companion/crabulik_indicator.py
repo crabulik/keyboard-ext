@@ -292,6 +292,7 @@ if sys.platform == "darwin":
             self.last_written = None  # last code confirmed written
             self.powered = False
             self.acquiring = False
+            self.scanning = False  # a background scan is currently running
             self.next_attempt = 0.0  # monotonic time gate for connection attempts
             return self
 
@@ -316,14 +317,29 @@ if sys.platform == "darwin":
             self.acquiring = True
             conn = self.central.retrieveConnectedPeripheralsWithServices_([SVC_CBUUID])
             if conn and len(conn):
+                self._stop_scan()
                 self.peripheral = conn[0]
                 print(f"  found connected keyboard: {self.peripheral.name()}")
                 self.central.connectPeripheral_options_(self.peripheral, None)
             else:
-                print("  keyboard not in connected list; scanning by service UUID...")
-                self.central.scanForPeripheralsWithServices_options_(
-                    [SVC_CBUUID], None
-                )
+                # A keyboard that's already linked to macOS does NOT advertise, so
+                # a scan can never find it — only retrieveConnectedPeripherals can.
+                # At login the keyboard is often not in that list yet, so we MUST
+                # re-check it later: clear `acquiring` so ensureConnected() retries
+                # retrieve on the next backoff tick. A single background scan stays
+                # up as a fallback for the rare advertising-but-not-linked case.
+                if not self.scanning:
+                    print("  keyboard not connected yet; scanning + retrying...")
+                    self.central.scanForPeripheralsWithServices_options_(
+                        [SVC_CBUUID], None
+                    )
+                    self.scanning = True
+                self.acquiring = False
+
+        def _stop_scan(self):
+            if self.scanning:
+                self.central.stopScan()
+                self.scanning = False
 
         def _flush(self):
             if (
@@ -338,6 +354,7 @@ if sys.platform == "darwin":
                 )
 
         def _drop(self):
+            self._stop_scan()
             self.peripheral = None
             self.char = None
             self.acquiring = False
@@ -356,7 +373,7 @@ if sys.platform == "darwin":
             self, central, peripheral, adv, rssi
         ):
             print(f"  discovered: {peripheral.name()}")
-            central.stopScan()
+            self._stop_scan()
             self.peripheral = peripheral
             central.connectPeripheral_options_(peripheral, None)
 
